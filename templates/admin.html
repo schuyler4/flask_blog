@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block body %}
+<form action="/admin" method="post">
+	<input type="text" name="username">
+	<input type="text" name="password">
+	<button type="submit">Login as admin</button>
+</form>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <h4> {{message}} </h4>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{%extends "layout.html" %}
+{% block body %}
+iIw
+<form action="/addblogpost" method="POST">
+	<h4>title<input type="text" name="title"></h4>
+	<h4>sub-title<input type="text" name="subtitle"></h4>
+	<h4>content<textarea type="text" name="content">
+	</textarea></h4>
+	<button type="submit">add blog post</button>
+</form>
+{% endblock %}

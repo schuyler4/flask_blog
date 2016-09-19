@@ -1,0 +1,16 @@
+{% extends "layout.html"%}
+{% block body %}
+<h1>{{blog_post.title}}</h1>
+<h3>{{blog_post.sub_title}}</h3>
+<h6>{{blog_post.date_created}}</h6>
+<p>{{blog_post.content}}</p>
+<form action="/blogpost/{{blog_post.title}}" method="POST">
+	<input type="text" name="user_name">
+	<textarea type="text" name="content"></textarea>
+	<button type="submit">add comment</button>
+</form>
+{% for comment in comments %}
+<h3>{{comment.name}}</h3>
+<h4>{{comment.content}}</h4>
+{% endfor %}
+{% endblock %}
