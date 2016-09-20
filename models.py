@@ -1,7 +1,7 @@
 import datetime
 from sqlalchemy import String, Column, Integer, create_engine, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.sql import func
 
 
@@ -18,7 +18,7 @@ class Blog_Post(Base):
 	title = Column(String)
 	sub_title = Column(String)
 	content = Column(String)
-	comments = relationship("Comments")
+	comments = relationship("Comments", backref="Blog_Post")
 	__tablename__ = "Blog_Post"
 
 	def __init__(self, title, sub_title, content):
@@ -31,7 +31,7 @@ class Comments(Base):
 	blog_post_id = Column(Integer, ForeignKey(Blog_Post.id),primary_key=True)
 	name = Column(String(50))
 	content = Column(String(150))
-	blog_post = relationship('Blog_Post')
+	blog_post = relationship('Blog_Post', cascade="all,delete",backref="Comments")
 	__tablename__ = "Comments"
 
 	def __init__(self, name, content, blog_post):

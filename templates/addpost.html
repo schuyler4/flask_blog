@@ -1,6 +1,5 @@
 {%extends "layout.html" %}
 {% block body %}
-iIw
 <form action="/addblogpost" method="POST">
 	<h4>title<input type="text" name="title"></h4>
 	<h4>sub-title<input type="text" name="subtitle"></h4>
@@ -8,4 +7,15 @@ iIw
 	</textarea></h4>
 	<button type="submit">add blog post</button>
 </form>
+<div class="conatainer">
+	<ul>
+	{% for blog_post in blog_posts %}
+		<li>
+			<h3>{{blog_post.title}}</h3>
+			<button id="deleteButton">delete this post</button>
+		</li>
+	{% endfor %}
+	</ul>
+</div>
+<script type="text/javascript" src="{{ url_for('static', filename = 'js/delete.js') }}"></script>
 {% endblock %}

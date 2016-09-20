@@ -15,6 +15,7 @@ def home():
 
 @routes.route("/admin", methods=["GET", "POST"])
 def check_admin():
+	session["logged_in"] = False
 	if request.method == 'POST':
 		username = request.form['username']
 		password = request.form['password']
@@ -22,7 +23,7 @@ def check_admin():
 			return redirect(url_for('routes.add_blog'))
 			session["logged_in"] = True
 		else:
-			flash("are you sure your an admin something was not entered correctly")
+			flash("are you sure your an admin something wase't entered correctly")
 			return redirect(url_for('routes.check_admin'))
 	return render_template("admin.html")
 
@@ -35,9 +36,6 @@ def add_blog():
 		sub_title = request.form['subtitle']
 		content = request.form['content']
 		new_blog_post = Blog_Post(title, sub_title, content)
-		print "panda"
-		print new_blog_post
-		print "gallop"
 		db_session.add(new_blog_post)
 		try:
 			db_session.commit()
@@ -45,28 +43,63 @@ def add_blog():
 			print "error"
 			pass
 		return redirect(url_for('routes.blog_post', blog_post_title=title))
-	if(session["logged_in"] == True):
-		return render_template("addpost.html")
+	if 'logged_in' in session:
+		blog_posts = db_session.query(Blog_Post).all()
+		return render_template("addpost.html", blog_posts = blog_posts)
 	else:
 		return redirect(url_for('routes.check_admin'))
 
 
+@routes.route('/deleteblogpost', methods=['POST'])
+def delete_blog():
+	title = request.form['title']
+	print title
+	delete_blog_post = db_session.query(Blog_Post).first()
+	show = db_session.relationship('Show',
+                           backref=db.backref('episodes', cascade="all, delete-orphan"),
+                           lazy='joined')
+	print delete_blog_post
+	db_session.delete(delete_comments)
+	db_session.delete(delete_blog_post)
+	try:
+		print "succsess"
+		db_session.commit()
+	except Exception as e:
+		print "error"
+		db_session.rollback()
+		db_session.flush()
+	return redirect(url_for('routes.add_blog'))
+
+
 @routes.route("/addemaillist", methods=['GET', 'POST'])
 def add_email_list():
-	if request.method == 'POST'
+	if request.method == 'POST':
+		print("hello")
 		first_name = request.form['first_name']
 		last_name = request.form['last_name']
 		email_address = request.form['email_address']
 		new_email_user = Email_User(first_name, last_name, email_address)
 		db_session.add(new_email_user)
 		try:
+			print("sucsess")
 			db_session.commit()
 		except exc.SQLAlchemyError:
 			print "error"
 			pass
-		return redirect(url_for('routes.add_blog'))
-	if(session['logged_in'] == True):
-		return render_template("")
+		print("panda")
+	email_list = db_session.query(Email_User).all()
+	if 'logged_in' in session:
+		return render_template("emailuser.html", email_list=email_list)
+	else:
+		return redirect(url_for('routes.check_admin'))
+
+
+@routes.route("/logoutadmin")
+def logout_admin():
+	if 'logged_in' in session:
+		session['logged_in'] == False
+	return redirect(url_for('routes.home'))
+
 
 @routes.route("/blogpost/<blog_post_title>", methods=["GET", "POST"])
 def blog_post(blog_post_title):
@@ -78,6 +111,7 @@ def blog_post(blog_post_title):
 		new_comment = Comments(user_name, content, whole_blog_post)
 		db_session.add(new_comment)
 		try:
+			print("sucsess")
 			db_session.commit()
 		except exc.SQLAlchemyError:
 			print "error"
@@ -96,4 +130,10 @@ def list_blog_post():
 @routes.errorhandler(404)
 def not_found_error(error):
 	return render_template('404.html') ,404
+
+
+@routes.errorhandler(500)
+def server_error(error):
+	return render_template('500.html'), 500
+
 
