@@ -1,0 +1,10 @@
+{% extends "layout.html"%}
+{% block body %}
+<form action="/editpost/{{blog_post.title}}" method="POST">
+	<h4>title<input type="text" name="title" value="{{blog_post.title}}"></h4>
+	<h4>sub-title<input type="text" name="subtitle" value="{{blog_post.subtitle}}"></h4>
+	<h4>content<textarea type="text" name="content" value="{{blog_post.content}}">
+	</textarea></h4>
+	<button type="submit">submit edits</button>
+</form>
+{% endblock %}

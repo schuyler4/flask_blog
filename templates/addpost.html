@@ -12,6 +12,7 @@
 	{% for blog_post in blog_posts %}
 		<li>
 			<h3>{{blog_post.title}}</h3>
+			<a href='/editpost/{{blog_post.title}}'>edit this post</a>
 			<button id="deleteButton">delete this post</button>
 		</li>
 	{% endfor %}

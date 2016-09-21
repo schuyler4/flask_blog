@@ -14,7 +14,7 @@ db_session = Session()
 class Blog_Post(Base):
 	id = Column ('blog_post_id', Integer, primary_key=True)
 	date_created = Column(DateTime(timezone=True), server_default=func.now())
-	date_updated = Column(DateTime(timezone=True), onupdate=func.new())
+	date_updated = Column(DateTime(timezone=True), onupdate=func.now())
 	title = Column(String)
 	sub_title = Column(String)
 	content = Column(String)
@@ -38,6 +38,7 @@ class Comments(Base):
 		self.name = name
 		self.content = content
 		self.blog_post = blog_post
+
 
 class Email_User(Base):
 	id = Column('blog_post_id', Integer, primary_key=True)

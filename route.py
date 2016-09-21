@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 from models import Blog_Post, Comments, db_session, Email_User
 from sqlalchemy import *
 from sqlalchemy.orm import *
+from flask_mail import Mail, Message
 routes = Blueprint('routes', __name__)
 
 
@@ -11,20 +12,22 @@ admin_password = "admin"
 
 @routes.route("/")
 def home():
+	print "message sent"
 	return render_template('home.html')
 
 @routes.route("/admin", methods=["GET", "POST"])
 def check_admin():
-	session["logged_in"] = False
 	if request.method == 'POST':
 		username = request.form['username']
 		password = request.form['password']
-		if(username == admin_username and password == admin_password):
+		if username == admin_username and password == admin_password:
 			return redirect(url_for('routes.add_blog'))
 			session["logged_in"] = True
 		else:
 			flash("are you sure your an admin something wase't entered correctly")
 			return redirect(url_for('routes.check_admin'))
+	if session['logged_in']:
+		return redirect(url_for('routes.add_blog'))
 	return render_template("admin.html")
 
 
@@ -32,6 +35,7 @@ def check_admin():
 def add_blog():
 
 	if request.method == 'POST':
+		error = False
 		title = request.form['title']
 		sub_title = request.form['subtitle']
 		content = request.form['content']
@@ -39,9 +43,10 @@ def add_blog():
 		db_session.add(new_blog_post)
 		try:
 			db_session.commit()
-		except exc.SQLAlchemyError:
-			print "error"
-			pass
+		except Exception as e:
+			error = True
+			db_session.rollback()
+			db_session.flush()
 		return redirect(url_for('routes.blog_post', blog_post_title=title))
 	if 'logged_in' in session:
 		blog_posts = db_session.query(Blog_Post).all()
@@ -90,6 +95,32 @@ def add_email_list():
 	email_list = db_session.query(Email_User).all()
 	if 'logged_in' in session:
 		return render_template("emailuser.html", email_list=email_list)
+	else:
+		return redirect(url_for('routes.check_admin'))
+
+
+@routes.route("/editpost/<blog_post_title>", methods=["GET", "POST"])
+def edit_post(blog_post_title):
+	blog_post = db_session.query(Blog_Post).filter(Blog_Post.title == blog_post_title).first()
+	if request.method == "POST":
+		title = request.form['title']
+		subtitle = request.form['title']
+		content = request.form['content']
+		blog_post.title = title
+		blog_post.subtitle = subtitle
+		blog_post.content = content
+		db_session.add(blog_post)
+		#try:
+		db_session.commit()
+		print "finished upadate"
+		#except Exception as e:
+			#db_session.rollback()
+			#db_session.flush()
+			#print("update error")
+		return redirect(url_for('routes.blog_post', blog_post_title=blog_post.title))
+
+	if 'logged_in' in session:
+		return render_template('editpost.html', blog_post= blog_post)
 	else:
 		return redirect(url_for('routes.check_admin'))
 
